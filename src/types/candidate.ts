@@ -9,15 +9,13 @@ export type InternshipArea =
 
 export type InternshipCity = 'Belém' | 'Marabá' | 'Santarém'
 
-export type Department = 'Polícia Civil' | 'SSP'
-
 export type UserRole = 'candidate' | 'administrator'
 
 export interface CandidateFormData {
   fullName: string
   cpf: string
   rg: string
-  department: Department
+  dateOfBirth: string
   motherName: string
   address: string
   phoneNumber: string

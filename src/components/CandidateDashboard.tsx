@@ -10,7 +10,7 @@ const labelMap: Record<keyof CandidateProfile, string> = {
     fullName: 'Nome completo',
     cpf: 'CPF',
     rg: 'RG',
-    department: 'Órgão emissor',
+    dateOfBirth: 'Data de nascimento',
     motherName: 'Nome da mãe',
     address: 'Endereço',
     phoneNumber: 'Telefone',
@@ -51,6 +51,14 @@ const formatValue = (
         return formatCpf(String(value));
     }
 
+    if (field === 'dateOfBirth') {
+        const dateValue = new Date(String(value));
+        if (Number.isNaN(dateValue.getTime())) {
+            return value;
+        }
+        return dateValue.toLocaleDateString('pt-BR');
+    }
+
     if (field === 'chosenArea') {
         switch (value) {
             case 'administration':
@@ -88,7 +96,7 @@ export const CandidateProfileSection = ({
                     'fullName',
                     'cpf',
                     'rg',
-                    'department',
+                    'dateOfBirth',
                     'motherName',
                     'address',
                     'phoneNumber',

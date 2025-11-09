@@ -16,6 +16,14 @@ const areaLabels: Record<InternshipArea, string> = {
     computers: 'Informática',
 };
 
+const formatDate = (dateValue: string): string => {
+    const date = new Date(dateValue);
+    if (Number.isNaN(date.getTime())) {
+        return dateValue;
+    }
+    return date.toLocaleDateString('pt-BR');
+};
+
 export const AdminCandidateList = () => {
     const [candidates, setCandidates] = useState<CandidateProfile[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -61,7 +69,7 @@ export const AdminCandidateList = () => {
                 Nome: candidate.fullName,
                 CPF: formatCpf(candidate.cpf),
                 RG: candidate.rg,
-                'Órgão emissor': candidate.department,
+                'Data de nascimento': formatDate(candidate.dateOfBirth),
                 'Nome da mãe': candidate.motherName,
                 Endereço: candidate.address,
                 Telefone: candidate.phoneNumber,
@@ -119,6 +127,7 @@ export const AdminCandidateList = () => {
                                 <tr>
                                     <th>Nome</th>
                                     <th>CPF</th>
+                                    <th>Data de nascimento</th>
                                     <th>Instituição</th>
                                     <th>Curso</th>
                                     <th>Área</th>
@@ -138,7 +147,8 @@ export const AdminCandidateList = () => {
                                         <tr key={candidate.id}>
                                             <td>{candidate.fullName}</td>
                                             <td>{formatCpf(candidate.cpf)}</td>
-                                            <td>{candidate.university}</td>
+                                        <td>{formatDate(candidate.dateOfBirth)}</td>
+                                        <td>{candidate.university}</td>
                                             <td>{candidate.course}</td>
                                             <td>{areaLabels[candidate.chosenArea]}</td>
                                             <td>{candidate.chosenCity}</td>

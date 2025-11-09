@@ -20,7 +20,7 @@ const toCandidateProfile = (
   fullName: record.fullName,
   cpf: record.cpf,
   rg: record.rg,
-  department: record.department,
+  dateOfBirth: record.dateOfBirth,
   motherName: record.motherName,
   address: record.address,
   phoneNumber: record.phoneNumber,

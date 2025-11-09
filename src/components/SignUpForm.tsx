@@ -8,7 +8,6 @@ import type {
     InternshipArea,
     InternshipCity,
     StudyPeriod,
-    Department,
 } from '../types/candidate';
 import { cleanCpf, isValidCpf } from '../utils/cpf';
 
@@ -43,11 +42,6 @@ const cityOptions: Array<{ value: InternshipCity; label: string }> = [
     { value: 'Belém', label: 'Belém' },
     { value: 'Marabá', label: 'Marabá' },
     { value: 'Santarém', label: 'Santarém' },
-];
-
-const departmentOptions: Array<{ value: Department; label: string }> = [
-    { value: 'Polícia Civil', label: 'Polícia Civil' },
-    { value: 'SSP', label: 'SSP' },
 ];
 
 const universityOptions = [
@@ -86,7 +80,7 @@ const initialState: SignUpFormState = {
     fullName: '',
     cpf: '',
     rg: '',
-    department: 'Polícia Civil',
+    dateOfBirth: '',
     motherName: '',
     address: '',
     phoneNumber: '',
@@ -244,12 +238,17 @@ export const SignUpForm = ({
             nextErrors.motherName = 'Informe o nome da mãe.';
         }
 
-        if (!form.rg) {
-            nextErrors.rg = 'Informe o RG.';
+        if (!form.dateOfBirth) {
+            nextErrors.dateOfBirth = 'Informe a data de nascimento.';
+        } else {
+            const dateValue = new Date(form.dateOfBirth);
+            if (Number.isNaN(dateValue.getTime())) {
+                nextErrors.dateOfBirth = 'Informe uma data válida.';
+            }
         }
 
-        if (!form.department) {
-            nextErrors.department = 'Selecione o órgão emissor.';
+        if (!form.rg) {
+            nextErrors.rg = 'Informe o RG.';
         }
 
         if (!form.address) {
@@ -385,20 +384,17 @@ export const SignUpForm = ({
                 </label>
 
                 <label className="form-field">
-                    <span>Órgão emissor</span>
-                    <select
-                        value={form.department}
-                        onChange={handleInputChange('department')}
+                    <span>Data de nascimento</span>
+                    <input
+                        type="date"
+                        value={form.dateOfBirth}
+                        onChange={handleInputChange('dateOfBirth')}
                         required
-                    >
-                        {departmentOptions.map((option) => (
-                            <option key={option.value} value={option.value}>
-                                {option.label}
-                            </option>
-                        ))}
-                    </select>
-                    {errors.department ? (
-                        <span className="field-error">{errors.department}</span>
+                    />
+                    {errors.dateOfBirth ? (
+                        <span className="field-error">
+                            {errors.dateOfBirth}
+                        </span>
                     ) : null}
                 </label>
 
