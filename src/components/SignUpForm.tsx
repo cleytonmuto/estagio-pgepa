@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { ChangeEvent, FormEvent } from 'react';
+import type { ChangeEvent, FormEvent, KeyboardEvent } from 'react';
 
 import { registerCandidate } from '../services/candidateService';
 import type {
@@ -199,6 +199,15 @@ export const SignUpForm = ({
             }));
         };
 
+    const handleBlockEnterKey = (
+        event: KeyboardEvent<HTMLInputElement | HTMLSelectElement>
+    ) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    };
+
     const handleBlur = (field: keyof SignUpFormState) => () => {
         if (field === 'cpf') {
             const cpfError = getCpfError(form.cpf);
@@ -333,6 +342,7 @@ export const SignUpForm = ({
                         type="text"
                         value={form.fullName}
                         onChange={handleInputChange('fullName')}
+                        onKeyDown={handleBlockEnterKey}
                         required
                     />
                     {errors.fullName ? (
@@ -349,6 +359,7 @@ export const SignUpForm = ({
                         value={form.cpf}
                         onChange={handleInputChange('cpf')}
                         onBlur={handleBlur('cpf')}
+                        onKeyDown={handleBlockEnterKey}
                         placeholder="Apenas números"
                         required
                     />
@@ -365,6 +376,7 @@ export const SignUpForm = ({
                         value={form.rg}
                         onChange={handleInputChange('rg')}
                         maxLength={14}
+                        onKeyDown={handleBlockEnterKey}
                         required
                     />
                     {errors.rg ? (
@@ -396,6 +408,7 @@ export const SignUpForm = ({
                         type="text"
                         value={form.motherName}
                         onChange={handleInputChange('motherName')}
+                        onKeyDown={handleBlockEnterKey}
                         required
                     />
                     {errors.motherName ? (
@@ -409,6 +422,7 @@ export const SignUpForm = ({
                         type="text"
                         value={form.address}
                         onChange={handleInputChange('address')}
+                        onKeyDown={handleBlockEnterKey}
                         required
                     />
                     {errors.address ? (
@@ -423,6 +437,7 @@ export const SignUpForm = ({
                         inputMode="numeric"
                         value={form.phoneNumber}
                         onChange={handleInputChange('phoneNumber')}
+                        onKeyDown={handleBlockEnterKey}
                         placeholder="(xx) xxxxx-xxxx"
                         required
                     />
@@ -440,6 +455,7 @@ export const SignUpForm = ({
                         value={form.email}
                         onChange={handleInputChange('email')}
                         onBlur={handleBlur('email')}
+                        onKeyDown={handleBlockEnterKey}
                         required
                     />
                     {errors.email ? (
@@ -474,6 +490,7 @@ export const SignUpForm = ({
                         type="text"
                         value={form.course}
                         onChange={handleInputChange('course')}
+                        onKeyDown={handleBlockEnterKey}
                         required
                     />
                     {errors.course ? (
@@ -574,6 +591,7 @@ export const SignUpForm = ({
                         type="password"
                         value={form.password}
                         onChange={handleInputChange('password')}
+                        onKeyDown={handleBlockEnterKey}
                         required
                     />
                     {errors.password ? (
@@ -587,6 +605,7 @@ export const SignUpForm = ({
                         type="password"
                         value={form.confirmPassword}
                         onChange={handleInputChange('confirmPassword')}
+                        onKeyDown={handleBlockEnterKey}
                         required
                     />
                     {errors.confirmPassword ? (

@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useState } from 'react'
+import { ChangeEvent, FormEvent, KeyboardEvent, useState } from 'react'
 
 import { authenticateCandidate } from '../services/candidateService'
 import type { CandidateProfile } from '../types/candidate'
@@ -55,6 +55,13 @@ export const LoginForm = ({
       }))
       setErrors((previous) => ({ ...previous, [field]: undefined, general: undefined }))
     }
+
+  const handleBlockEnterKey = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      event.stopPropagation()
+    }
+  }
 
   const handleBlur = (field: keyof LoginFormState) => () => {
     if (field !== 'cpf') {
@@ -118,6 +125,7 @@ export const LoginForm = ({
           value={form.cpf}
           onChange={handleChange('cpf')}
           onBlur={handleBlur('cpf')}
+          onKeyDown={handleBlockEnterKey}
           placeholder="Apenas números"
           required
         />
@@ -130,6 +138,7 @@ export const LoginForm = ({
           type="password"
           value={form.password}
           onChange={handleChange('password')}
+          onKeyDown={handleBlockEnterKey}
           placeholder="Informe sua senha"
           required
         />
