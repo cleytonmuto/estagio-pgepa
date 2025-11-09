@@ -131,7 +131,7 @@ export const AdminCandidateList = () => {
                                     <th>Instituição</th>
                                     <th>Curso</th>
                                     <th>Área</th>
-                                    <th>Cidade</th>
+                                    <th>Município desejado</th>
                                 </tr>
                             </thead>
                             <tbody>

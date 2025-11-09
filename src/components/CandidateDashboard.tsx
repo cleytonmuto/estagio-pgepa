@@ -20,7 +20,7 @@ const labelMap: Record<keyof CandidateProfile, string> = {
     semester: 'Semestre',
     period: 'Período',
     chosenArea: 'Área escolhida',
-    chosenCity: 'Cidade',
+    chosenCity: 'Município desejado',
     afroDescendant: 'Afrodescendente',
     needsSpecialAssistance: 'Necessita de atendimento especial',
     role: 'Perfil do usuário',

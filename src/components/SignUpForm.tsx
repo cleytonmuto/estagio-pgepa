@@ -543,7 +543,7 @@ export const SignUpForm = ({
                 </label>
 
                 <label className="form-field">
-                    <span>Cidade</span>
+                    <span>Município desejado</span>
                     <select
                         value={form.chosenCity}
                         onChange={handleInputChange('chosenCity')}
