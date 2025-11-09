@@ -1,35 +1,86 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import {
+    BrowserRouter,
+    Navigate,
+    Route,
+    Routes,
+    useNavigate,
+} from 'react-router-dom';
 
-function App() {
-  const [count, setCount] = useState(0)
+import './App.css';
+import { AuthenticatedLayout } from './components/AuthenticatedLayout';
+import { NoticeBoard } from './components/NoticeBoard';
+import { AuthPage } from './pages/AuthPage';
+import { CandidateProfilePage } from './pages/CandidateProfilePage';
+import type { CandidateProfile } from './types/candidate';
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+interface AuthenticatedAppProps {
+    candidate: CandidateProfile;
+    onLogout: () => void;
 }
 
-export default App
+const AuthenticatedApp = ({ candidate, onLogout }: AuthenticatedAppProps) => {
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        onLogout();
+        navigate('/login', { replace: true });
+    };
+
+    return (
+        <Routes>
+            <Route
+                element={
+                    <AuthenticatedLayout
+                        candidate={candidate}
+                        onLogout={handleLogout}
+                    />
+                }
+            >
+                <Route index element={<Navigate to="/dashboard" replace />} />
+                <Route path="/dashboard" element={<NoticeBoard />} />
+                <Route
+                    path="/perfil"
+                    element={<CandidateProfilePage candidate={candidate} />}
+                />
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            </Route>
+        </Routes>
+    );
+};
+
+function App() {
+    const [candidate, setCandidate] = useState<CandidateProfile | null>(null);
+
+    return (
+        <BrowserRouter>
+            {candidate ? (
+                <AuthenticatedApp
+                    candidate={candidate}
+                    onLogout={() => setCandidate(null)}
+                />
+            ) : (
+                <div className="app-shell">
+                    <Routes>
+                        <Route
+                            path="/login"
+                            element={
+                                <AuthPage
+                                    onAuthenticated={(profile) =>
+                                        setCandidate(profile)
+                                    }
+                                />
+                            }
+                        />
+                        <Route
+                            path="*"
+                            element={<Navigate to="/login" replace />}
+                        />
+                    </Routes>
+                </div>
+            )}
+        </BrowserRouter>
+    );
+}
+
+export default App;
