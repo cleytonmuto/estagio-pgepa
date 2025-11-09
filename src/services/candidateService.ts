@@ -1,5 +1,5 @@
 import { hashSync, compareSync } from 'bcryptjs'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore'
 
 import { db } from '../firebase/config'
 import type {
@@ -33,6 +33,7 @@ const toCandidateProfile = (
   chosenCity: record.chosenCity,
   afroDescendant: record.afroDescendant,
   needsSpecialAssistance: record.needsSpecialAssistance,
+  role: record.role,
 })
 
 export const registerCandidate = async (
@@ -58,6 +59,7 @@ export const registerCandidate = async (
   const record: CandidateRecord = {
     ...candidateData,
     cpf: normalizedCpf,
+    role: 'candidate',
     passwordHash,
     createdAt: timestamp,
     updatedAt: timestamp,
@@ -89,5 +91,14 @@ export const authenticateCandidate = async (
   }
 
   return toCandidateProfile(snapshot.id, data)
+}
+
+export const fetchCandidates = async (): Promise<CandidateProfile[]> => {
+  const snapshot = await getDocs(collection(db, CANDIDATES_COLLECTION))
+
+  return snapshot.docs.map((docSnapshot) => {
+    const data = docSnapshot.data() as CandidateRecord
+    return toCandidateProfile(docSnapshot.id, data)
+  })
 }
 

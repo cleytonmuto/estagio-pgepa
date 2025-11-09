@@ -17,7 +17,8 @@ export const AuthPage = ({ onAuthenticated }: AuthPageProps) => {
 
   const handleAuthenticated = (candidate: CandidateProfile) => {
     onAuthenticated(candidate)
-    navigate('/dashboard', { replace: true })
+    const targetPath = candidate.role === 'administrator' ? '/admin/dashboard' : '/dashboard'
+    navigate(targetPath, { replace: true })
   }
 
   return (

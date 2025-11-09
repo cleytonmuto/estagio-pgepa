@@ -23,6 +23,7 @@ const labelMap: Record<keyof CandidateProfile, string> = {
     chosenCity: 'Cidade',
     afroDescendant: 'Afrodescendente',
     needsSpecialAssistance: 'Necessita de atendimento especial',
+    role: 'Perfil do usuário',
 };
 
 const formatValue = (
@@ -82,16 +83,33 @@ export const CandidateProfileSection = ({
         </header>
 
         <div className="dashboard-grid">
-            {(Object.keys(candidate) as Array<keyof CandidateProfile>)
-                .filter((field) => field !== 'id')
-                .map((field) => (
-                    <div key={field} className="dashboard-card">
-                        <span className="card-label">{labelMap[field]}</span>
-                        <p className="card-value">
-                            {formatValue(field, candidate[field])}
-                        </p>
-                    </div>
-                ))}
+            {(
+                [
+                    'fullName',
+                    'cpf',
+                    'rg',
+                    'department',
+                    'motherName',
+                    'address',
+                    'phoneNumber',
+                    'email',
+                    'university',
+                    'course',
+                    'semester',
+                    'period',
+                    'chosenArea',
+                    'chosenCity',
+                    'afroDescendant',
+                    'needsSpecialAssistance',
+                ] satisfies Array<keyof CandidateProfile>
+            ).map((field) => (
+                <div key={field} className="dashboard-card">
+                    <span className="card-label">{labelMap[field]}</span>
+                    <p className="card-value">
+                        {formatValue(field, candidate[field])}
+                    </p>
+                </div>
+            ))}
         </div>
     </section>
 );

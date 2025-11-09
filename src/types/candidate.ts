@@ -11,6 +11,8 @@ export type InternshipCity = 'Belém' | 'Marabá' | 'Santarém'
 
 export type Department = 'Polícia Civil' | 'SSP'
 
+export type UserRole = 'candidate' | 'administrator'
+
 export interface CandidateFormData {
   fullName: string
   cpf: string
@@ -31,6 +33,7 @@ export interface CandidateFormData {
 }
 
 export interface CandidateRecord extends CandidateFormData {
+  role: UserRole
   passwordHash: string
   createdAt: string
   updatedAt: string
@@ -38,6 +41,7 @@ export interface CandidateRecord extends CandidateFormData {
 
 export interface CandidateProfile extends CandidateFormData {
   id: string
+  role: UserRole
 }
 
 export interface CandidateRegistrationInput extends CandidateFormData {
