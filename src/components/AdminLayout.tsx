@@ -14,7 +14,7 @@ const getFirstName = (fullName: string): string => {
 
 export const AdminLayout = ({ candidate, onLogout }: AdminLayoutProps) => {
     const navigationLinks = [
-        { to: '/admin/dashboard', label: 'Painel' },
+        { to: '/admin/publicacoes', label: 'Publicações' },
         { to: '/admin/candidatos', label: 'Inscrições' },
     ];
 

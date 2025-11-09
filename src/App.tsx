@@ -16,6 +16,7 @@ import { NoticeBoard } from './components/NoticeBoard';
 import { AuthPage } from './pages/AuthPage';
 import { CandidateProfilePage } from './pages/CandidateProfilePage';
 import type { CandidateProfile } from './types/candidate';
+import { AdminPublicationCreatePage } from './pages/admin/AdminPublicationCreatePage';
 
 interface CandidateAppProps {
     candidate: CandidateProfile;
@@ -72,15 +73,19 @@ const AdminApp = ({ candidate, onLogout }: AdminAppProps) => {
                     <AdminLayout candidate={candidate} onLogout={handleLogout} />
                 }
             >
-                <Route index element={<Navigate to="/admin/dashboard" replace />} />
-                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route index element={<Navigate to="/admin/publicacoes" replace />} />
+                <Route path="/admin/publicacoes" element={<AdminDashboard />} />
+                <Route
+                    path="/admin/publicacoes/nova"
+                    element={<AdminPublicationCreatePage />}
+                />
                 <Route
                     path="/admin/candidatos"
                     element={<AdminCandidateList />}
                 />
                 <Route
                     path="*"
-                    element={<Navigate to="/admin/dashboard" replace />}
+                    element={<Navigate to="/admin/publicacoes" replace />}
                 />
             </Route>
         </Routes>
