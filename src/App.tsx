@@ -24,7 +24,13 @@ interface CandidateAppProps {
     onLogout: () => void;
 }
 
-const CandidateApp = ({ candidate, onLogout }: CandidateAppProps) => {
+const CandidateApp = ({
+    candidate,
+    onLogout,
+    onProfileUpdate,
+}: CandidateAppProps & {
+    onProfileUpdate?: (updatedCandidate: CandidateProfile) => void;
+}) => {
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -46,7 +52,12 @@ const CandidateApp = ({ candidate, onLogout }: CandidateAppProps) => {
                 <Route path="/dashboard" element={<NoticeBoard />} />
                 <Route
                     path="/perfil"
-                    element={<CandidateProfilePage candidate={candidate} />}
+                    element={
+                        <CandidateProfilePage
+                            candidate={candidate}
+                            onProfileUpdate={onProfileUpdate}
+                        />
+                    }
                 />
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Route>
@@ -112,6 +123,9 @@ function App() {
                     <CandidateApp
                         candidate={currentUser}
                         onLogout={() => setCurrentUser(null)}
+                        onProfileUpdate={(updatedCandidate) =>
+                            setCurrentUser(updatedCandidate)
+                        }
                     />
                 )
             ) : (

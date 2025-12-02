@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
 
-import { fetchCandidates } from '../services/candidateService';
+import {
+    fetchCandidates,
+    updateCandidate,
+} from '../services/candidateService';
 import type {
     CandidateProfile,
     InternshipArea,
@@ -29,6 +32,8 @@ export const AdminCandidateList = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isExporting, setIsExporting] = useState(false);
+    const [updatingId, setUpdatingId] = useState<string | null>(null);
+    const [updateError, setUpdateError] = useState<string | null>(null);
 
     useEffect(() => {
         const loadCandidates = async () => {
@@ -58,6 +63,32 @@ export const AdminCandidateList = () => {
         [candidates],
     );
 
+    const handleToggleDeliveredFood = async (
+        candidate: CandidateProfile,
+        newValue: boolean,
+    ) => {
+        try {
+            setUpdatingId(candidate.id);
+            setUpdateError(null);
+            const updatedCandidate = await updateCandidate(candidate.cpf, {
+                deliveredFood: newValue,
+            });
+            setCandidates((previous) =>
+                previous.map((c) =>
+                    c.id === candidate.id ? updatedCandidate : c,
+                ),
+            );
+        } catch (err) {
+            setUpdateError(
+                err instanceof Error
+                    ? err.message
+                    : 'Não foi possível atualizar o status.',
+            );
+        } finally {
+            setUpdatingId(null);
+        }
+    };
+
     const handleExport = () => {
         if (candidates.length === 0) {
             return;
@@ -80,10 +111,11 @@ export const AdminCandidateList = () => {
                 Turno: candidate.period,
                 'Área escolhida': areaLabels[candidate.chosenArea],
                 Cidade: candidate.chosenCity,
-                'Afrodescendente': candidate.afroDescendant ? 'Sim' : 'Não',
+                'Afrodescendente': candidate.afroDescendant ? 'sim' : 'não',
                 'Necessita atendimento especial': candidate.needsSpecialAssistance
-                    ? 'Sim'
-                    : 'Não',
+                    ? 'sim'
+                    : 'não',
+                'Entregou alimento': candidate.deliveredFood ? 'sim' : 'não',
             }));
 
             const worksheet = XLSX.utils.json_to_sheet(data);
@@ -111,6 +143,11 @@ export const AdminCandidateList = () => {
                 <div className="admin-list-status admin-list-error">{error}</div>
             ) : (
                 <>
+                    {updateError ? (
+                        <div className="admin-list-status admin-list-error">
+                            {updateError}
+                        </div>
+                    ) : null}
                     <button
                         type="button"
                         className="primary-button admin-export-button"
@@ -132,12 +169,13 @@ export const AdminCandidateList = () => {
                                     <th>Curso</th>
                                     <th>Área</th>
                                     <th>Município desejado</th>
+                                    <th>Entregou alimento</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {sortedCandidates.length === 0 ? (
                                     <tr>
-                                        <td colSpan={6}>
+                                        <td colSpan={8}>
                                             Nenhuma inscrição foi encontrada até o
                                             momento.
                                         </td>
@@ -147,11 +185,33 @@ export const AdminCandidateList = () => {
                                         <tr key={candidate.id}>
                                             <td>{candidate.fullName}</td>
                                             <td>{formatCpf(candidate.cpf)}</td>
-                                        <td>{formatDate(candidate.dateOfBirth)}</td>
-                                        <td>{candidate.university}</td>
+                                            <td>{formatDate(candidate.dateOfBirth)}</td>
+                                            <td>{candidate.university}</td>
                                             <td>{candidate.course}</td>
                                             <td>{areaLabels[candidate.chosenArea]}</td>
                                             <td>{candidate.chosenCity}</td>
+                                            <td>
+                                                <select
+                                                    value={
+                                                        candidate.deliveredFood
+                                                            ? 'sim'
+                                                            : 'não'
+                                                    }
+                                                    onChange={(e) => {
+                                                        handleToggleDeliveredFood(
+                                                            candidate,
+                                                            e.target.value ===
+                                                                'sim',
+                                                        );
+                                                    }}
+                                                    disabled={
+                                                        updatingId === candidate.id
+                                                    }
+                                                >
+                                                    <option value="não">não</option>
+                                                    <option value="sim">sim</option>
+                                                </select>
+                                            </td>
                                         </tr>
                                     ))
                                 )}

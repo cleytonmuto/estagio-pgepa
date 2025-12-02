@@ -12,6 +12,7 @@ import type {
 import { cleanCpf, isValidCpf } from '../utils/cpf';
 import { isValidEmail } from '../utils/email';
 import { validatePassword } from '../utils/password';
+import { normalizeText } from '../utils/text';
 
 interface SignUpFormProps {
     onRegistered: (candidate: CandidateProfile) => void;
@@ -95,6 +96,7 @@ const initialState: SignUpFormState = {
     chosenCity: 'Belém',
     afroDescendant: false,
     needsSpecialAssistance: false,
+    deliveredFood: false,
     password: '',
     confirmPassword: '',
 };
@@ -125,21 +127,6 @@ const getEmailError = (email: string): string | undefined => {
     }
 
     return undefined;
-};
-
-/**
- * Normalizes text by:
- * - Replacing line breaks with spaces
- * - Collapsing multiple spaces into single spaces
- * - Trimming leading and trailing whitespace
- */
-const normalizeText = (text: string): string => {
-    return text
-        .replace(/\r\n/g, ' ')
-        .replace(/\n/g, ' ')
-        .replace(/\r/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
 };
 
 export const SignUpForm = ({

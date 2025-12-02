@@ -23,6 +23,7 @@ const labelMap: Record<keyof CandidateProfile, string> = {
     chosenCity: 'Município desejado',
     afroDescendant: 'Afrodescendente',
     needsSpecialAssistance: 'Necessita de atendimento especial',
+    deliveredFood: 'Entregou alimento',
     role: 'Perfil do usuário',
 };
 
@@ -31,7 +32,7 @@ const formatValue = (
     value: CandidateProfile[keyof CandidateProfile]
 ) => {
     if (typeof value === 'boolean') {
-        return value ? 'Sim' : 'Não';
+        return value ? 'sim' : 'não';
     }
 
     if (field === 'period') {
@@ -86,7 +87,10 @@ export const CandidateProfileSection = ({
         <header className="dashboard-header">
             <div>
                 <h1>Dados do candidato</h1>
-                <p>Consulte as informações enviadas na sua inscrição.</p>
+                <p>
+                    Verifique seus dados, pois somente poderão ser alterados
+                    durante o período de inscrição.
+                </p>
             </div>
         </header>
 
@@ -109,15 +113,35 @@ export const CandidateProfileSection = ({
                     'chosenCity',
                     'afroDescendant',
                     'needsSpecialAssistance',
+                    'deliveredFood',
                 ] satisfies Array<keyof CandidateProfile>
-            ).map((field) => (
-                <div key={field} className="dashboard-card">
-                    <span className="card-label">{labelMap[field]}</span>
-                    <p className="card-value">
-                        {formatValue(field, candidate[field])}
-                    </p>
-                </div>
-            ))}
+            ).map((field) => {
+                const value = formatValue(field, candidate[field]);
+                const isDeliveredFood = field === 'deliveredFood';
+                const isDelivered = Boolean(candidate.deliveredFood);
+
+                return (
+                    <div key={field} className="dashboard-card">
+                        <span className="card-label">{labelMap[field]}</span>
+                        <p
+                            className="card-value"
+                            style={
+                                isDeliveredFood
+                                    ? {
+                                          color:
+                                              isDelivered === true
+                                                  ? '#10b981'
+                                                  : '#ef4444',
+                                          fontWeight: 600,
+                                      }
+                                    : undefined
+                            }
+                        >
+                            {value}
+                        </p>
+                    </div>
+                );
+            })}
         </div>
     </section>
 );

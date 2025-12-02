@@ -28,6 +28,7 @@ export interface CandidateFormData {
   chosenCity: InternshipCity
   afroDescendant: boolean
   needsSpecialAssistance: boolean
+  deliveredFood: boolean
 }
 
 export interface CandidateRecord extends CandidateFormData {

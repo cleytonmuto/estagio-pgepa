@@ -1,11 +1,21 @@
 import { hashSync, compareSync } from 'bcryptjs'
-import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore'
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+} from 'firebase/firestore'
 
 import { db } from '../firebase/config'
 import type {
   CandidateProfile,
   CandidateRecord,
   CandidateRegistrationInput,
+  InternshipArea,
+  InternshipCity,
+  StudyPeriod,
 } from '../types/candidate'
 import { cleanCpf, isValidCpf } from '../utils/cpf'
 
@@ -33,6 +43,7 @@ const toCandidateProfile = (
   chosenCity: record.chosenCity,
   afroDescendant: record.afroDescendant,
   needsSpecialAssistance: record.needsSpecialAssistance,
+  deliveredFood: record.deliveredFood ?? false,
   role: record.role,
 })
 
@@ -61,6 +72,7 @@ export const registerCandidate = async (
     cpf: normalizedCpf,
     role: 'candidate',
     passwordHash,
+    deliveredFood: false, // Always false for new registrations
     createdAt: timestamp,
     updatedAt: timestamp,
   }
@@ -100,5 +112,47 @@ export const fetchCandidates = async (): Promise<CandidateProfile[]> => {
     const data = docSnapshot.data() as CandidateRecord
     return toCandidateProfile(docSnapshot.id, data)
   })
+}
+
+export interface CandidateUpdateInput {
+  fullName?: string
+  rg?: string
+  dateOfBirth?: string
+  motherName?: string
+  address?: string
+  phoneNumber?: string
+  email?: string
+  university?: string
+  course?: string
+  semester?: number
+  period?: StudyPeriod
+  chosenArea?: InternshipArea
+  chosenCity?: InternshipCity
+  afroDescendant?: boolean
+  needsSpecialAssistance?: boolean
+}
+
+export const updateCandidate = async (
+  cpf: string,
+  input: CandidateUpdateInput,
+): Promise<CandidateProfile> => {
+  const normalizedCpf = cleanCpf(cpf)
+  const candidateRef = doc(db, CANDIDATES_COLLECTION, normalizedCpf)
+  const snapshot = await getDoc(candidateRef)
+
+  if (!snapshot.exists()) {
+    throw new Error('Candidato não encontrado.')
+  }
+
+  const updateData: Partial<CandidateRecord> = {
+    ...input,
+    updatedAt: new Date().toISOString(),
+  }
+
+  await updateDoc(candidateRef, updateData)
+
+  const updatedSnapshot = await getDoc(candidateRef)
+  const data = updatedSnapshot.data() as CandidateRecord
+  return toCandidateProfile(updatedSnapshot.id, data)
 }
 

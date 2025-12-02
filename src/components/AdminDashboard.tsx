@@ -5,6 +5,11 @@ import {
   deletePublication,
   listenToPublications,
 } from '../services/publicationService'
+import {
+  getSettings,
+  listenToSettings,
+  updateSettings,
+} from '../services/settingsService'
 import type { Publication } from '../types/publication'
 
 const formatDateTime = (value: string): string => {
@@ -26,6 +31,9 @@ export const AdminDashboard = () => {
   const [publicationsError, setPublicationsError] = useState<string | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [allowCandidateEdit, setAllowCandidateEdit] = useState(false)
+  const [isLoadingSettings, setIsLoadingSettings] = useState(true)
+  const [settingsError, setSettingsError] = useState<string | null>(null)
 
   useEffect(() => {
     const unsubscribe = listenToPublications(
@@ -43,6 +51,38 @@ export const AdminDashboard = () => {
 
     return () => unsubscribe()
   }, [])
+
+  useEffect(() => {
+    const unsubscribe = listenToSettings(
+      (settings) => {
+        setAllowCandidateEdit(settings.allowCandidateEdit)
+        setIsLoadingSettings(false)
+      },
+      (error) => {
+        setSettingsError(
+          error.message ?? 'Não foi possível carregar as configurações.',
+        )
+        setIsLoadingSettings(false)
+      },
+    )
+
+    return () => unsubscribe()
+  }, [])
+
+  const handleToggleCandidateEdit = async () => {
+    try {
+      setSettingsError(null)
+      const newValue = !allowCandidateEdit
+      await updateSettings({ allowCandidateEdit: newValue })
+      setAllowCandidateEdit(newValue)
+    } catch (error) {
+      setSettingsError(
+        error instanceof Error
+          ? error.message
+          : 'Não foi possível atualizar a configuração.',
+      )
+    }
+  }
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Confirma a exclusão deste comunicado?')) {
@@ -73,6 +113,41 @@ export const AdminDashboard = () => {
           informações do Programa de Estágio PGE-PA.
         </p>
       </header>
+
+      <section className="admin-settings">
+        <div className="admin-settings-card">
+          <div className="admin-settings-header">
+            <div>
+              <h2>Configurações do sistema</h2>
+              <p>Gerencie as permissões e configurações gerais do sistema.</p>
+            </div>
+          </div>
+          {settingsError ? (
+            <div className="admin-list-status admin-list-error">
+              {settingsError}
+            </div>
+          ) : null}
+          <div className="admin-settings-item">
+            <div className="admin-settings-item-content">
+              <div>
+                <h3>Edição de dados por candidatos</h3>
+                <p>
+                  Permite que os candidatos editem seus próprios dados pessoais.
+                </p>
+              </div>
+              <label className="admin-toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={allowCandidateEdit}
+                  onChange={handleToggleCandidateEdit}
+                  disabled={isLoadingSettings}
+                />
+                <span className="admin-toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="publication-list">
         <div className="publication-list-header">
