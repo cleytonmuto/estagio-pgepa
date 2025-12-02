@@ -11,6 +11,7 @@ import type {
 } from '../types/candidate';
 import { cleanCpf, isValidCpf } from '../utils/cpf';
 import { isValidEmail } from '../utils/email';
+import { validatePassword } from '../utils/password';
 
 interface SignUpFormProps {
     onRegistered: (candidate: CandidateProfile) => void;
@@ -126,6 +127,21 @@ const getEmailError = (email: string): string | undefined => {
     return undefined;
 };
 
+/**
+ * Normalizes text by:
+ * - Replacing line breaks with spaces
+ * - Collapsing multiple spaces into single spaces
+ * - Trimming leading and trailing whitespace
+ */
+const normalizeText = (text: string): string => {
+    return text
+        .replace(/\r\n/g, ' ')
+        .replace(/\n/g, ' ')
+        .replace(/\r/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+};
+
 export const SignUpForm = ({
     onRegistered,
     onSwitchToLogin,
@@ -149,6 +165,7 @@ export const SignUpForm = ({
                     : target.value;
 
             setForm((previous) => {
+                // Numeric-only fields
                 if (field === 'cpf') {
                     return {
                         ...previous,
@@ -179,9 +196,30 @@ export const SignUpForm = ({
                     };
                 }
 
+                // Password fields - keep as is (spaces might be intentional)
+                if (field === 'password' || field === 'confirmPassword') {
+                    return {
+                        ...previous,
+                        [field]: String(nextValue),
+                    };
+                }
+
+                // Boolean fields
+                if (
+                    field === 'afroDescendant' ||
+                    field === 'needsSpecialAssistance'
+                ) {
+                    return {
+                        ...previous,
+                        [field]: nextValue,
+                    };
+                }
+
+                // All other text fields - normalize (trim and collapse spaces)
+                const normalizedValue = normalizeText(String(nextValue));
                 return {
                     ...previous,
-                    [field]: nextValue,
+                    [field]: normalizedValue,
                 };
             });
 
@@ -193,7 +231,9 @@ export const SignUpForm = ({
         };
 
     const handleBlockEnterKey = (
-        event: KeyboardEvent<HTMLInputElement | HTMLSelectElement>
+        event: KeyboardEvent<
+            HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+        >
     ) => {
         if (event.key === 'Enter') {
             event.preventDefault();
@@ -274,8 +314,9 @@ export const SignUpForm = ({
             nextErrors.semester = 'O semestre deve estar entre 1 e 10.';
         }
 
-        if (!form.password || form.password.length < 6) {
-            nextErrors.password = 'A senha deve ter pelo menos 6 caracteres.';
+        const passwordValidation = validatePassword(form.password);
+        if (!passwordValidation.isValid) {
+            nextErrors.password = passwordValidation.errors[0];
         }
 
         if (form.password !== form.confirmPassword) {
@@ -297,10 +338,19 @@ export const SignUpForm = ({
             setIsSubmitting(true);
             const { confirmPassword, ...candidatePayload } = form;
             void confirmPassword;
-            const candidate = await registerCandidate({
+
+            // Normalize text fields before submission
+            const normalizedPayload = {
                 ...candidatePayload,
+                fullName: normalizeText(candidatePayload.fullName),
+                motherName: normalizeText(candidatePayload.motherName),
+                address: normalizeText(candidatePayload.address),
+                course: normalizeText(candidatePayload.course),
+                email: normalizeText(candidatePayload.email),
                 cpf: form.cpf,
-            });
+            };
+
+            const candidate = await registerCandidate(normalizedPayload);
 
             onRegistered(candidate);
             setForm(initialState);
@@ -463,6 +513,7 @@ export const SignUpForm = ({
                     <select
                         value={form.university}
                         onChange={handleInputChange('university')}
+                        onKeyDown={handleBlockEnterKey}
                         required
                     >
                         <option value="" disabled>
@@ -498,6 +549,7 @@ export const SignUpForm = ({
                     <select
                         value={form.semester}
                         onChange={handleInputChange('semester')}
+                        onKeyDown={handleBlockEnterKey}
                         required
                     >
                         {semesterOptions.map((semester) => (
@@ -516,6 +568,7 @@ export const SignUpForm = ({
                     <select
                         value={form.period}
                         onChange={handleInputChange('period')}
+                        onKeyDown={handleBlockEnterKey}
                         required
                     >
                         {periodOptions.map((option) => (
@@ -531,6 +584,7 @@ export const SignUpForm = ({
                     <select
                         value={form.chosenArea}
                         onChange={handleInputChange('chosenArea')}
+                        onKeyDown={handleBlockEnterKey}
                         required
                     >
                         {areaOptions.map((option) => (
@@ -546,6 +600,7 @@ export const SignUpForm = ({
                     <select
                         value={form.chosenCity}
                         onChange={handleInputChange('chosenCity')}
+                        onKeyDown={handleBlockEnterKey}
                         required
                     >
                         {cityOptions.map((option) => (
@@ -587,11 +642,42 @@ export const SignUpForm = ({
                         value={form.password}
                         onChange={handleInputChange('password')}
                         onKeyDown={handleBlockEnterKey}
+                        onBlur={() => {
+                            if (form.password) {
+                                const passwordValidation = validatePassword(
+                                    form.password
+                                );
+                                if (!passwordValidation.isValid) {
+                                    setErrors((previous) => ({
+                                        ...previous,
+                                        password: passwordValidation.errors[0],
+                                    }));
+                                } else {
+                                    setErrors((previous) => ({
+                                        ...previous,
+                                        password: undefined,
+                                    }));
+                                }
+                            }
+                        }}
+                        placeholder="Mínimo 8 caracteres: 1 maiúscula, 1 minúscula, 1 número, 1 símbolo"
                         required
                     />
                     {errors.password ? (
                         <span className="field-error">{errors.password}</span>
-                    ) : null}
+                    ) : (
+                        <span
+                            className="auth-helper"
+                            style={{
+                                fontSize: '0.85rem',
+                                marginTop: '0.25rem',
+                            }}
+                        >
+                            A senha deve ter pelo menos 8 caracteres, incluindo
+                            1 letra maiúscula, 1 minúscula, 1 número e 1 símbolo
+                            especial.
+                        </span>
+                    )}
                 </label>
 
                 <label className="form-field">
