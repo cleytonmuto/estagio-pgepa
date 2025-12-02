@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom';
 
 import type { CandidateProfile } from '../types/candidate';
+import { DarkModeToggle } from './DarkModeToggle';
 
 interface AuthenticatedLayoutProps {
     candidate: CandidateProfile;
@@ -49,6 +50,7 @@ export const AuthenticatedLayout = ({
                 </nav>
 
                 <div className="user-actions">
+                    <DarkModeToggle />
                     <span className="user-greeting">
                         Olá, {getCandidateFirstName(candidate.fullName)}!
                     </span>

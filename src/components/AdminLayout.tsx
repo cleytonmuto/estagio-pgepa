@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom';
 
 import type { CandidateProfile } from '../types/candidate';
+import { DarkModeToggle } from './DarkModeToggle';
 
 interface AdminLayoutProps {
     candidate: CandidateProfile;
@@ -46,6 +47,7 @@ export const AdminLayout = ({ candidate, onLogout }: AdminLayoutProps) => {
                 </nav>
 
                 <div className="user-actions">
+                    <DarkModeToggle />
                     <span className="user-greeting">
                         Administrador(a) {getFirstName(candidate.fullName)}
                     </span>

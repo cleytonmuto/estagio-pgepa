@@ -17,6 +17,7 @@ import { AuthPage } from './pages/AuthPage';
 import { CandidateProfilePage } from './pages/CandidateProfilePage';
 import type { CandidateProfile } from './types/candidate';
 import { AdminPublicationCreatePage } from './pages/admin/AdminPublicationCreatePage';
+import { AdminPublicationEditPage } from './pages/admin/AdminPublicationEditPage';
 
 interface CandidateAppProps {
     candidate: CandidateProfile;
@@ -78,6 +79,10 @@ const AdminApp = ({ candidate, onLogout }: AdminAppProps) => {
                 <Route
                     path="/admin/publicacoes/nova"
                     element={<AdminPublicationCreatePage />}
+                />
+                <Route
+                    path="/admin/publicacoes/editar/:id"
+                    element={<AdminPublicationEditPage />}
                 />
                 <Route
                     path="/admin/candidatos"

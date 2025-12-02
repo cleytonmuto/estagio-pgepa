@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { deletePublication, listenToPublications } from '../services/publicationService'
+import {
+  deletePublication,
+  listenToPublications,
+} from '../services/publicationService'
 import type { Publication } from '../types/publication'
 
 const formatDateTime = (value: string): string => {
@@ -113,6 +116,13 @@ export const AdminDashboard = () => {
                 dangerouslySetInnerHTML={{ __html: publication.content }}
               />
               <div className="publication-actions">
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={() => navigate(`/admin/publicacoes/editar/${publication.id}`)}
+                >
+                  Editar comunicado
+                </button>
                 <button
                   type="button"
                   className="danger-button"

@@ -3,11 +3,13 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
   onSnapshot,
   orderBy,
   query,
   serverTimestamp,
   Timestamp,
+  updateDoc,
 } from 'firebase/firestore'
 
 import { db } from '../firebase/config'
@@ -64,5 +66,21 @@ export const createPublication = async (input: PublicationInput): Promise<void> 
 
 export const deletePublication = async (id: string): Promise<void> => {
   await deleteDoc(doc(db, PUBLICATIONS_COLLECTION, id))
+}
+
+export const getPublication = async (id: string): Promise<Publication | null> => {
+  const document = await getDoc(doc(db, PUBLICATIONS_COLLECTION, id))
+  
+  if (!document.exists()) {
+    return null
+  }
+
+  return mapPublication(document.id, document.data() as PublicationInput & { createdAt?: Timestamp | null })
+}
+
+export const updatePublication = async (id: string, input: PublicationInput): Promise<void> => {
+  await updateDoc(doc(db, PUBLICATIONS_COLLECTION, id), {
+    ...input,
+  })
 }
 

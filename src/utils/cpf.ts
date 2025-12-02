@@ -12,8 +12,8 @@ const calculateVerifierDigit = (cpf: string, factor: number): number => {
     total += Number(cpf[i]) * (factor - i)
   }
 
-  const remainder = (total * 10) % 11
-  return remainder === 10 ? 0 : remainder
+  const remainder = total % 11
+  return remainder < 2 ? 0 : 11 - remainder
 }
 
 export const isValidCpf = (value: string): boolean => {

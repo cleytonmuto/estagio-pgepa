@@ -10,6 +10,7 @@ import type {
     StudyPeriod,
 } from '../types/candidate';
 import { cleanCpf, isValidCpf } from '../utils/cpf';
+import { isValidEmail } from '../utils/email';
 
 interface SignUpFormProps {
     onRegistered: (candidate: CandidateProfile) => void;
@@ -118,9 +119,7 @@ const getEmailError = (email: string): string | undefined => {
         return 'Informe o e-mail.';
     }
 
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!emailPattern.test(email)) {
+    if (!isValidEmail(email)) {
         return 'Informe um e-mail válido.';
     }
 
