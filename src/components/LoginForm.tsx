@@ -1,4 +1,5 @@
 import { ChangeEvent, FormEvent, KeyboardEvent, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 import { authenticateCandidate } from '../services/candidateService'
 import type { CandidateProfile } from '../types/candidate'
@@ -151,6 +152,11 @@ export const LoginForm = ({
         {isSubmitting ? 'Entrando...' : 'Entrar'}
       </button>
 
+      <p className="auth-helper" style={{ textAlign: 'center' }}>
+        <Link to="/forgot-password" className="link-button">
+          Esqueci minha senha
+        </Link>
+      </p>
       <p className="auth-helper">
         Ainda não possui acesso?{' '}
         <button

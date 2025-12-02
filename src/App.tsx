@@ -15,7 +15,10 @@ import { AuthenticatedLayout } from './components/AuthenticatedLayout';
 import { NoticeBoard } from './components/NoticeBoard';
 import { AuthPage } from './pages/AuthPage';
 import { CandidateProfilePage } from './pages/CandidateProfilePage';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import type { CandidateProfile } from './types/candidate';
+import { AdminCandidateEditPage } from './pages/admin/AdminCandidateEditPage';
 import { AdminPublicationCreatePage } from './pages/admin/AdminPublicationCreatePage';
 import { AdminPublicationEditPage } from './pages/admin/AdminPublicationEditPage';
 
@@ -100,6 +103,10 @@ const AdminApp = ({ candidate, onLogout }: AdminAppProps) => {
                     element={<AdminCandidateList />}
                 />
                 <Route
+                    path="/admin/candidatos/editar/:cpf"
+                    element={<AdminCandidateEditPage />}
+                />
+                <Route
                     path="*"
                     element={<Navigate to="/admin/publicacoes" replace />}
                 />
@@ -140,6 +147,14 @@ function App() {
                                     }
                                 />
                             }
+                        />
+                        <Route
+                            path="/forgot-password"
+                            element={<ForgotPasswordPage />}
+                        />
+                        <Route
+                            path="/reset-password"
+                            element={<ResetPasswordPage />}
                         />
                         <Route
                             path="*"

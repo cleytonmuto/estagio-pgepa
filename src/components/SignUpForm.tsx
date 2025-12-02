@@ -1,7 +1,10 @@
 import { useMemo, useState } from 'react';
 import type { ChangeEvent, FormEvent, KeyboardEvent } from 'react';
 
-import { registerCandidate } from '../services/candidateService';
+import {
+    checkCpfExists,
+    registerCandidate,
+} from '../services/candidateService';
 import type {
     CandidateProfile,
     CandidateRegistrationInput,
@@ -101,7 +104,7 @@ const initialState: SignUpFormState = {
     confirmPassword: '',
 };
 
-const getCpfError = (cpf: string): string | undefined => {
+const getCpfError = async (cpf: string): Promise<string | undefined> => {
     if (!cpf) {
         return 'Informe o CPF.';
     }
@@ -112,6 +115,17 @@ const getCpfError = (cpf: string): string | undefined => {
 
     if (!isValidCpf(cpf)) {
         return 'CPF inválido.';
+    }
+
+    // Check if CPF is already registered
+    try {
+        const exists = await checkCpfExists(cpf);
+        if (exists) {
+            return 'Este CPF já possui inscrição ativa.';
+        }
+    } catch (error) {
+        // If check fails, don't block the form - let submission handle it
+        console.error('Error checking CPF:', error);
     }
 
     return undefined;
@@ -228,9 +242,9 @@ export const SignUpForm = ({
         }
     };
 
-    const handleBlur = (field: keyof SignUpFormState) => () => {
+    const handleBlur = (field: keyof SignUpFormState) => async () => {
         if (field === 'cpf') {
-            const cpfError = getCpfError(form.cpf);
+            const cpfError = await getCpfError(form.cpf);
             setErrors((previous) => ({ ...previous, cpf: cpfError }));
             return;
         }
@@ -241,14 +255,14 @@ export const SignUpForm = ({
         }
     };
 
-    const validate = (): boolean => {
+    const validate = async (): Promise<boolean> => {
         const nextErrors: SignUpErrors = {};
 
         if (!form.fullName) {
             nextErrors.fullName = 'Informe o nome completo.';
         }
 
-        const cpfError = getCpfError(form.cpf);
+        const cpfError = await getCpfError(form.cpf);
 
         if (cpfError) {
             nextErrors.cpf = cpfError;
@@ -317,7 +331,7 @@ export const SignUpForm = ({
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        if (!validate()) {
+        if (!(await validate())) {
             return;
         }
 
@@ -343,21 +357,12 @@ export const SignUpForm = ({
             setForm(initialState);
             setErrors({});
         } catch (error) {
-            if (
-                error instanceof Error &&
-                error.message.toLowerCase().includes('cpf already registered')
-            ) {
-                setErrors({
-                    cpf: 'Este CPF já possui inscrição ativa.',
-                });
-            } else {
-                setErrors({
-                    general:
-                        error instanceof Error
-                            ? error.message
-                            : 'Não foi possível concluir o cadastro. Tente novamente.',
-                });
-            }
+            setErrors({
+                general:
+                    error instanceof Error
+                        ? error.message
+                        : 'Não foi possível concluir o cadastro. Tente novamente.',
+            });
         } finally {
             setIsSubmitting(false);
         }

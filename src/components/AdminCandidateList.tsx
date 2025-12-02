@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 
 import {
+    deleteCandidate,
     fetchCandidates,
     updateCandidate,
 } from '../services/candidateService';
@@ -28,12 +30,15 @@ const formatDate = (dateValue: string): string => {
 };
 
 export const AdminCandidateList = () => {
+    const navigate = useNavigate();
     const [candidates, setCandidates] = useState<CandidateProfile[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isExporting, setIsExporting] = useState(false);
     const [updatingId, setUpdatingId] = useState<string | null>(null);
     const [updateError, setUpdateError] = useState<string | null>(null);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [deleteError, setDeleteError] = useState<string | null>(null);
 
     useEffect(() => {
         const loadCandidates = async () => {
@@ -86,6 +91,33 @@ export const AdminCandidateList = () => {
             );
         } finally {
             setUpdatingId(null);
+        }
+    };
+
+    const handleDelete = async (candidate: CandidateProfile) => {
+        const confirmed = window.confirm(
+            `Tem certeza que deseja excluir a inscrição de ${candidate.fullName} (CPF: ${formatCpf(candidate.cpf)})?\n\nEsta ação não pode ser desfeita.`,
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            setDeletingId(candidate.id);
+            setDeleteError(null);
+            await deleteCandidate(candidate.cpf);
+            setCandidates((previous) =>
+                previous.filter((c) => c.id !== candidate.id),
+            );
+        } catch (err) {
+            setDeleteError(
+                err instanceof Error
+                    ? err.message
+                    : 'Não foi possível excluir a inscrição.',
+            );
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -148,6 +180,11 @@ export const AdminCandidateList = () => {
                             {updateError}
                         </div>
                     ) : null}
+                    {deleteError ? (
+                        <div className="admin-list-status admin-list-error">
+                            {deleteError}
+                        </div>
+                    ) : null}
                     <button
                         type="button"
                         className="primary-button admin-export-button"
@@ -170,12 +207,13 @@ export const AdminCandidateList = () => {
                                     <th>Área</th>
                                     <th>Município desejado</th>
                                     <th>Entregou alimento</th>
+                                    <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {sortedCandidates.length === 0 ? (
                                     <tr>
-                                        <td colSpan={8}>
+                                        <td colSpan={9}>
                                             Nenhuma inscrição foi encontrada até o
                                             momento.
                                         </td>
@@ -211,6 +249,49 @@ export const AdminCandidateList = () => {
                                                     <option value="não">não</option>
                                                     <option value="sim">sim</option>
                                                 </select>
+                                            </td>
+                                            <td>
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        gap: '0.5rem',
+                                                        flexWrap: 'wrap',
+                                                    }}
+                                                >
+                                                    <button
+                                                        type="button"
+                                                        className="secondary-button"
+                                                        onClick={() =>
+                                                            navigate(
+                                                                `/admin/candidatos/editar/${candidate.cpf}`,
+                                                            )
+                                                        }
+                                                        style={{
+                                                            padding: '0.4rem 0.8rem',
+                                                            fontSize: '0.85rem',
+                                                        }}
+                                                    >
+                                                        Editar
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="danger-button"
+                                                        onClick={() =>
+                                                            handleDelete(candidate)
+                                                        }
+                                                        disabled={
+                                                            deletingId === candidate.id
+                                                        }
+                                                        style={{
+                                                            padding: '0.4rem 0.8rem',
+                                                            fontSize: '0.85rem',
+                                                        }}
+                                                    >
+                                                        {deletingId === candidate.id
+                                                            ? 'Excluindo...'
+                                                            : 'Excluir'}
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))

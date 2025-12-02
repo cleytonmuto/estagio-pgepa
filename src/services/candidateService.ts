@@ -1,6 +1,7 @@
 import { hashSync, compareSync } from 'bcryptjs'
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -82,6 +83,26 @@ export const registerCandidate = async (
   return toCandidateProfile(candidateRef.id, record)
 }
 
+export const checkCpfExists = async (cpf: string): Promise<boolean> => {
+  const normalizedCpf = cleanCpf(cpf)
+  const candidateRef = doc(db, CANDIDATES_COLLECTION, normalizedCpf)
+  const snapshot = await getDoc(candidateRef)
+  return snapshot.exists()
+}
+
+export const getCandidateByCpf = async (cpf: string): Promise<CandidateProfile | null> => {
+  const normalizedCpf = cleanCpf(cpf)
+  const candidateRef = doc(db, CANDIDATES_COLLECTION, normalizedCpf)
+  const snapshot = await getDoc(candidateRef)
+
+  if (!snapshot.exists()) {
+    return null
+  }
+
+  const data = snapshot.data() as CandidateRecord
+  return toCandidateProfile(snapshot.id, data)
+}
+
 export const authenticateCandidate = async (
   cpf: string,
   password: string,
@@ -130,6 +151,7 @@ export interface CandidateUpdateInput {
   chosenCity?: InternshipCity
   afroDescendant?: boolean
   needsSpecialAssistance?: boolean
+  deliveredFood?: boolean
 }
 
 export const updateCandidate = async (
@@ -154,5 +176,37 @@ export const updateCandidate = async (
   const updatedSnapshot = await getDoc(candidateRef)
   const data = updatedSnapshot.data() as CandidateRecord
   return toCandidateProfile(updatedSnapshot.id, data)
+}
+
+export const deleteCandidate = async (cpf: string): Promise<void> => {
+  const normalizedCpf = cleanCpf(cpf)
+  const candidateRef = doc(db, CANDIDATES_COLLECTION, normalizedCpf)
+  const snapshot = await getDoc(candidateRef)
+
+  if (!snapshot.exists()) {
+    throw new Error('Candidato não encontrado.')
+  }
+
+  await deleteDoc(candidateRef)
+}
+
+export const resetPassword = async (
+  cpf: string,
+  newPassword: string,
+): Promise<void> => {
+  const normalizedCpf = cleanCpf(cpf)
+  const candidateRef = doc(db, CANDIDATES_COLLECTION, normalizedCpf)
+  const snapshot = await getDoc(candidateRef)
+
+  if (!snapshot.exists()) {
+    throw new Error('Candidato não encontrado.')
+  }
+
+  const passwordHash = hashSync(newPassword, PASSWORD_SALT_ROUNDS)
+
+  await updateDoc(candidateRef, {
+    passwordHash,
+    updatedAt: new Date().toISOString(),
+  })
 }
 
