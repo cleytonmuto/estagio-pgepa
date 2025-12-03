@@ -1,4 +1,5 @@
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { useState } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
 
 import { updateCandidate } from '../services/candidateService';
 import type {
@@ -91,7 +92,7 @@ export const CandidateProfileEdit = ({
         needsSpecialAssistance: candidate.needsSpecialAssistance,
     });
 
-    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [errors, setErrors] = useState<Record<string, string | undefined>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [generalError, setGeneralError] = useState<string | null>(null);
 

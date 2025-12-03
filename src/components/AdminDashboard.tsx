@@ -6,7 +6,6 @@ import {
   listenToPublications,
 } from '../services/publicationService'
 import {
-  getSettings,
   listenToSettings,
   updateSettings,
 } from '../services/settingsService'

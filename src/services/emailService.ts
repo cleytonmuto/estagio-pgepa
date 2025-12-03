@@ -8,13 +8,6 @@
  * should call your backend API endpoint that handles email sending.
  */
 
-interface SendEmailOptions {
-  to: string;
-  subject: string;
-  html: string;
-  text?: string;
-}
-
 /**
  * Sends a password reset email
  * 
@@ -31,6 +24,8 @@ export const sendPasswordResetEmail = async (
 ): Promise<void> => {
   const resetUrl = `${window.location.origin}/reset-password?token=${resetToken}`;
 
+  // Email content - this would be sent to your email service
+  // This variable is intentionally unused as it's a template for implementation
   const emailContent = {
     to: email,
     subject: 'Recuperação de Senha - Programa de Estágio PGE-PA',
@@ -100,6 +95,9 @@ export const sendPasswordResetEmail = async (
   };
 
   // TODO: Replace this with actual email sending implementation
+  // Use emailContent object above to send the email
+  // Reference emailContent to avoid unused variable warning
+  void emailContent;
   // Option 1: Call your backend API
   // const response = await fetch('/api/send-email', {
   //   method: 'POST',

@@ -1,4 +1,5 @@
-import { ChangeEvent, FormEvent, KeyboardEvent, useState } from 'react'
+import { useState } from 'react'
+import type { ChangeEvent, FormEvent, KeyboardEvent } from 'react'
 import { Link } from 'react-router-dom'
 
 import { authenticateCandidate } from '../services/candidateService'
